@@ -553,3 +553,26 @@ def abbreviated_name(name, append_digit=None):
         abbr = abbr+str(append_digit)
 
     return abbr
+
+
+def get_subdomain(host):
+    """
+    >>> get_subdomain('vendor.inkmonk.in')
+    'vendor'
+    >>> get_subdomain('vendor.us.inkmonk.com')
+    'vendor.us'
+    >>> get_subdomain('vendor.us')
+    ''
+    >>> get_subdomain('inkmonk.com')
+    ''
+    >>> get_subdomain('inkmonk')
+    ''
+    >>> get_subdomain('inkmonk.com')
+    ''
+    >>> get_subdomain('us.inkmonk.com')
+    'us'
+    """
+
+    host_parts = host.split('.')
+    subs = host_parts[:-2]
+    return '.'.join(subs)

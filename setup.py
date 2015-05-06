@@ -1,10 +1,10 @@
 from setuptools import setup
 
 setup(
-    name='pyutils',
+    name='toolspy',
     version='0.1.0',
     long_description='A python toolset',
-    packages=['pyutils'],
+    packages=['toolspy'],
     include_package_data=True,
     license='MIT',
     author='SuryaSankar',
