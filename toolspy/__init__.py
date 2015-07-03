@@ -398,6 +398,8 @@ def deep_group(olist, keys, sort_attr=None, serializer=None,
         return olist
     if sort_attr:
         olist.sort(key=attrgetter(sort_attr))
+    else:
+        olist.sort(key=lambda o: tuple(getattr(o, k) for k in keys))
     result = {}
     for k, items in group(olist, keys[0]):
         items = list(items)
