@@ -17,6 +17,7 @@ import math
 from functools import wraps
 import errno
 import signal
+from collections import OrderedDict
 # import MySQLdb
 # from sqlalchemy.ext.associationproxy import (
 #     _AssociationDict, _AssociationList)
@@ -371,7 +372,8 @@ def group(olist, key):
 def deep_group(olist, keys, sort_attr=None, serializer=None,
                attr_to_show=None,
                serializer_args=[], serializer_kwargs={},
-               strip_single_object_lists=False):
+               strip_single_object_lists=False,
+               preserve_order=False):
     """
     >>> customers[0].country="India"
     >>> customers[0].state="UP"
@@ -409,7 +411,7 @@ def deep_group(olist, keys, sort_attr=None, serializer=None,
                     result[k] = getattr(
                         items[0], serializer)(*serializer_args,
                                               **serializer_kwargs)
-                elif attr_to_show:
+                elif attr_to_show is not None:
                     result[k] = getattr(
                         items[0], attr_to_show)
                 else:
@@ -420,7 +422,7 @@ def deep_group(olist, keys, sort_attr=None, serializer=None,
                         item, serializer)(*serializer_args,
                                           **serializer_kwargs)
                         for item in items]
-                elif attr_to_show:
+                elif attr_to_show is not None:
                     result[k] = [getattr(
                         item, attr_to_show) for item in items]
                 else:
@@ -431,7 +433,11 @@ def deep_group(olist, keys, sort_attr=None, serializer=None,
                 serializer=serializer,
                 serializer_args=serializer_args,
                 serializer_kwargs=serializer_kwargs,
-                strip_single_object_lists=strip_single_object_lists)
+                strip_single_object_lists=strip_single_object_lists,
+                preserve_order=preserve_order,
+                attr_to_show=attr_to_show)
+    if preserve_order:
+        result = OrderedDict(sorted(result.items()), key=lambda t: t[0])
     return result
 
 
@@ -555,3 +561,5 @@ def abbreviated_name(name, append_digit=None):
         abbr = abbr+str(append_digit)
 
     return abbr
+
+
