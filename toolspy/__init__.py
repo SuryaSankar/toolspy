@@ -182,6 +182,10 @@ def place_nulls(key, input_keyvals, output_results):
     return output_results
 
 
+def reverse_dict(d):
+    return {v: k for k, v in d.items()}
+
+
 def subdict(dictionary, keys):
     """
     >>>a={1:3, 4:5, 6:7}
@@ -396,6 +400,8 @@ def deep_group(olist, keys, sort_attr=None, serializer=None,
                'UP': {'Delhi': [fulton@hills.com, maximus@collins.com],
                'Agra': [metta@nienow.com]}}}
     """
+    if len(olist) == 0:
+        return {}
     if len(keys) == 0:
         return olist
     if sort_attr:
