@@ -311,7 +311,11 @@ def flatten(list_of_lists):
 
 
 def filtered_list(olist, exclude_list):
-    return filter(lambda i:  i not in exclude_list, olist)
+    return filter(lambda i: i not in exclude_list, olist)
+
+
+def capitalize_words(sentence):
+    return ' '.join(word.capitalize() for word in sentence.split(" "))
 
 
 def getattr_safe(obj, attr):
