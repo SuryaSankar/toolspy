@@ -149,8 +149,10 @@ def discount_percent(original_price, new_price):
 #     return (filename, _file)
 
 
-def boolify(string):
-    return string.lower() in ['true', 'yes']
+def boolify(val):
+    if isinstance(val, bool):
+        return val
+    return val.lower() in ['true', 'yes']
 
 
 def is_email(mailstr):
