@@ -65,6 +65,11 @@ def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
     return decorator
 
 
+def all_subclasses(cls):
+    return cls.__subclasses__() + [
+        g for s in cls.__subclasses__() for g in all_subclasses(s)]
+
+
 def hypotenuse(x, y):
     return math.sqrt(x**2 + y**2)
 
@@ -92,7 +97,12 @@ def intersection(list_of_lists):
 
 
 def difference(list1, list2):
-    return list(set(list1).difference(set(list2)))
+    result = []
+    for item in list1:
+        if item not in list2:
+            result.append(item)
+    return result
+    # return list(set(list1).difference(set(list2)))
 
 
 def symmetric_difference(list1, list2):
@@ -132,7 +142,6 @@ def percentage(numerator, denominator):
 def percentage_markup(original, percent):
     return monetize(original + (Decimal(percent) / 100) * original)
 
-
 def discount_percent(original_price, new_price):
     return percentage(original_price-new_price, original_price)
 
@@ -150,9 +159,26 @@ def discount_percent(original_price, new_price):
 
 
 def boolify(val):
+    if val is None:
+        return False
     if isinstance(val, bool):
         return val
     return val.lower() in ['true', 'yes']
+
+
+def unique_sublists(lst, duplicate_checker=None):
+    if duplicate_checker is None:
+        duplicate_checker = lambda item, lst: item in lst
+    sublists = [[]]
+    for item in lst:
+        for sublist in sublists:
+            if not duplicate_checker(item, sublist):
+                sublist.append(item)
+                break
+        else:
+            sublists.append([item])
+
+    return sublists
 
 
 def is_email(mailstr):
