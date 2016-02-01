@@ -46,6 +46,12 @@ class TimeoutError(Exception):
     pass
 
 
+def scd(cls):
+    if len(cls.__subclasses__())==0:
+        return {}
+    return {x: scd(x) for x in cls.__subclasses__()}
+
+
 def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
     def decorator(func):
         def _handle_timeout(signum, frame):
@@ -622,3 +628,8 @@ def get_subdomain(host):
     host_parts = host.split('.')
     subs = host_parts[:-2]
     return '.'.join(subs)
+
+
+def get_subclass(parent_class, discriminator):
+    return next(mclass for mclass in all_subclasses(parent_class)
+                if mclass.__mapper_args__['polymorphic_identity'] == discriminator)
