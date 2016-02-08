@@ -18,6 +18,7 @@ from functools import wraps
 import errno
 import signal
 from collections import OrderedDict
+import calendar
 # import MySQLdb
 # from sqlalchemy.ext.associationproxy import (
 #     _AssociationDict, _AssociationList)
@@ -631,5 +632,12 @@ def get_subdomain(host):
 
 
 def get_subclass(parent_class, discriminator):
-    return next(mclass for mclass in all_subclasses(parent_class)
-                if mclass.__mapper_args__['polymorphic_identity'] == discriminator)
+    try:
+        return next(mclass for mclass in all_subclasses(parent_class)
+                    if mclass.__mapper_args__['polymorphic_identity'] == discriminator)
+    except:
+        return None
+
+
+def readable_date(dt):
+    return "%s %s, %s" % (calendar.month_name[dt.month], dt.day, calendar.day_name[dt.weekday()])
