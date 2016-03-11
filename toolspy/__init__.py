@@ -24,7 +24,8 @@ import calendar
 #     _AssociationDict, _AssociationList)
 # from sqlalchemy.orm.collections import (
 #     InstrumentedList, MappedCollection)
-
+from urllib import urlencode
+from urlparse import parse_qs, urlsplit, urlunsplit
 
 EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
@@ -51,6 +52,23 @@ def scd(cls):
     if len(cls.__subclasses__())==0:
         return {}
     return {x: scd(x) for x in cls.__subclasses__()}
+
+# Lifted from http://stackoverflow.com/a/12897375
+def set_query_parameter(url, param_name, param_value):
+    """Given a URL, set or replace a query parameter and return the
+    modified URL.
+
+    >>> set_query_parameter('http://example.com?foo=bar&biz=baz', 'foo', 'stuff')
+    'http://example.com?foo=stuff&biz=baz'
+
+    """
+    scheme, netloc, path, query_string, fragment = urlsplit(url)
+    query_params = parse_qs(query_string)
+
+    query_params[param_name] = [param_value]
+    new_query_string = urlencode(query_params, doseq=True)
+
+    return urlunsplit((scheme, netloc, path, new_query_string, fragment))
 
 
 def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
