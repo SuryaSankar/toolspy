@@ -3,7 +3,7 @@
 # This module is meant to be a Python tool set.
 #########################################################
 
-from itertools import chain, groupby
+from itertools import chain, groupby, product
 from operator import attrgetter
 from contextlib import contextmanager
 from inspect import ismethod
@@ -54,7 +54,7 @@ def scd(cls):
     return {x: scd(x) for x in cls.__subclasses__()}
 
 # Lifted from http://stackoverflow.com/a/12897375
-def set_query_parameter(url, param_name, param_value):
+def set_query_params(url, params):
     """Given a URL, set or replace a query parameter and return the
     modified URL.
 
@@ -64,8 +64,8 @@ def set_query_parameter(url, param_name, param_value):
     """
     scheme, netloc, path, query_string, fragment = urlsplit(url)
     query_params = parse_qs(query_string)
-
-    query_params[param_name] = [param_value]
+    for param_name, param_value in params.items():
+        query_params[param_name] = [param_value]
     new_query_string = urlencode(query_params, doseq=True)
 
     return urlunsplit((scheme, netloc, path, new_query_string, fragment))
@@ -275,14 +275,14 @@ def add_kv_to_dict(dictionary, key, value):
     return dict(chain(dictionary.items(), [(key, value)]))
 
 
-def merge(dict1, dict2):
+def merge(*dicts):
     """
     >>> a={1:2, 3:4}
     >>> b={5:6, 7:8}
     >>> merge(a,b)
     {1: 2, 3: 4, 5: 6, 7: 8}
     """
-    return dict(chain(dict1.iteritems(), dict2.iteritems()))
+    return dict(chain(*[_dict.iteritems() for _dict in dicts]))
 
 
 def add_kv_if_absent(dictionary, key, value):
@@ -659,3 +659,8 @@ def get_subclass(parent_class, discriminator):
 
 def readable_date(dt):
     return "%s %s, %s" % (calendar.month_name[dt.month], dt.day, calendar.day_name[dt.weekday()])
+
+
+def all_combinations(list_of_keys, lists_of_lists_of_vals):
+    return [dict(zip(list_of_keys, combo)) for combo in product(
+        *lists_of_lists_of_vals)]
