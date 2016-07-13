@@ -668,3 +668,6 @@ def readable_date(dt):
 def all_combinations(list_of_keys, lists_of_lists_of_vals):
     return [dict(zip(list_of_keys, combo)) for combo in product(
         *lists_of_lists_of_vals)]
+
+def add_to_struct(key, item, struct):
+    append_if_absent(set_if_absent_and_get(struct, key, []), item)
