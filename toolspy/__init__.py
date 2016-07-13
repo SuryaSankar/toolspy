@@ -312,10 +312,14 @@ def monetize(number):
     >>> monetize(3.4334)
     Decimal('3.43')
     """
+    if number is None:
+        return None
     return Decimal(number).quantize(Decimal('.01'))
 
 
 def quantize(number):
+    if number is None:
+        return None
     return Decimal(number).quantize(Decimal('.01'))
 
 
