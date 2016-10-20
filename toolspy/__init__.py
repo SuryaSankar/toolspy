@@ -297,7 +297,14 @@ def add_kv_if_absent(dictionary, key, value):
 
 
 def has_duplicates(l):
-    return len(l) != len(set(l))
+    try:
+        return len(l) != len(set(l))
+    except:
+        for i in range(len(l)):
+            for j in range(i + 1, len(l)):
+                if l[i] == l[j]:
+                    return True
+        return False
 
 
 def remove_duplicates(l):
