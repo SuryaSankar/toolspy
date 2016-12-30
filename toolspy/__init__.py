@@ -723,3 +723,8 @@ def correct_subclass(klass, discriminator):
 
 def is_subset_of(set1, set2):
     return all(el in set2 for el in set1)
+
+def int_safe_cast(val):
+    if val is None:
+        return None
+    return int(val)
