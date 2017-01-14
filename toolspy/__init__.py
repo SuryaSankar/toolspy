@@ -728,3 +728,8 @@ def int_safe_cast(val):
     if val is None:
         return None
     return int(val)
+
+def delete_dict_keys(d, keys):
+    for k in keys:
+        if k in d:
+            del d[k]
