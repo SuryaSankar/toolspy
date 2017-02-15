@@ -733,3 +733,16 @@ def delete_dict_keys(d, keys):
     for k in keys:
         if k in d:
             del d[k]
+
+def fetch_nested_key(obj, key_string):
+    if key_string is None:
+        return None
+    keys = key_string.split(".")
+    curr_obj = obj
+    for key in keys:
+        if curr_obj is None:
+            break
+        curr_obj = getattr(curr_obj, key)
+    else:
+        return None
+    return curr_obj
