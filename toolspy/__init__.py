@@ -741,8 +741,6 @@ def fetch_nested_key(obj, key_string):
     curr_obj = obj
     for key in keys:
         if curr_obj is None:
-            break
+            return None
         curr_obj = getattr(curr_obj, key)
-    else:
-        return None
     return curr_obj
