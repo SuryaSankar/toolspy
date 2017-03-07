@@ -744,3 +744,15 @@ def fetch_nested_key(obj, key_string):
             return None
         curr_obj = getattr(curr_obj, key)
     return curr_obj
+
+
+def fetch_nested_key_from_dict(obj, key_string):
+    if key_string is None:
+        return None
+    keys = key_string.split(".")
+    curr_obj = obj
+    for key in keys:
+        if curr_obj is None:
+            return None
+        curr_obj = curr_obj.get(key)
+    return curr_obj
