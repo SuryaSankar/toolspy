@@ -757,7 +757,7 @@ def fetch_nested_key_from_dict(obj, key_string):
         curr_obj = curr_obj.get(key)
     return curr_obj
 
-def sum_property(items, prop, skip_nones=False):
+def sum_attr_vals(items, prop, skip_nones=False):
     total = 0
     for item in items:
         val = getattr(item, prop)
