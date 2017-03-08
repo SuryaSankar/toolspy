@@ -756,3 +756,15 @@ def fetch_nested_key_from_dict(obj, key_string):
             return None
         curr_obj = curr_obj.get(key)
     return curr_obj
+
+def sum_property(items, prop, skip_nones=False):
+    total = 0
+    for item in items:
+        val = getattr(item, prop)
+        if val is None:
+            if skip_nones:
+                val = 0
+            else:
+                return None
+        total += val
+    return total
