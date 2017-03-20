@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='toolspy',
-    version='0.2.14',
+    version='0.2.15',
     description='A library of generic utility functions',
     long_description='A python toolset',
     packages=['toolspy'],
