@@ -768,3 +768,14 @@ def sum_attr_vals(items, prop, skip_nones=False):
                 return None
         total += val
     return total
+
+
+def totimestamp(dt, epoch=datetime(1970, 1, 1)):
+    td = dt - epoch
+    # return td.total_seconds()
+    return (
+        td.microseconds + (
+            td.seconds + td.days * 86400) * 10**6) / 10**6
+
+def join_non_nulls(strings, delimiter=","):
+    return delimiter.join([s for s in strings if s is not None])
