@@ -20,6 +20,7 @@ import signal
 from collections import OrderedDict
 import calendar
 import xlsxwriter
+from random import choice
 
 # import MySQLdb
 # from sqlalchemy.ext.associationproxy import (
@@ -147,12 +148,17 @@ def dict_map(d, mapper):
     return {k: mapper(v) for k, v in d.iteritems()}
 
 
-def random_string(length=None):
-    string1 = str(uuid.uuid4()).replace('-', '')
-    string2 = str(uuid.uuid4()).replace('-', '')
-    if length:
-        string = string1[:length/2] + string2[:(length-length/2)]
-    return string
+# def random_string(length=None):
+#     string1 = str(uuid.uuid4()).replace('-', '')
+#     string2 = str(uuid.uuid4()).replace('-', '')
+#     if length:
+#         string = string1[:length/2] + string2[:(length-length/2)]
+#     return string
+
+
+def random_string(length=8):
+    candidates = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'
+    return ''.join(choice(candidates) for i in range(length))
 
 
 def npartition(string, n=1, delimiter=' '):
@@ -777,5 +783,6 @@ def totimestamp(dt, epoch=datetime(1970, 1, 1)):
         td.microseconds + (
             td.seconds + td.days * 86400) * 10**6) / 10**6
 
-def join_non_nulls(strings, delimiter=","):
-    return delimiter.join([s for s in strings if s is not None])
+
+def join_non_nulls(strings, delimiter=", "):
+    return delimiter.join([s for s in strings if s is not None and s != ""])
