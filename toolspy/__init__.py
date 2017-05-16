@@ -141,6 +141,8 @@ def symmetric_difference(list1, list2):
 
 
 def round_float(value, precision=2):
+    if value is None:
+        return None
     return math.ceil(value*(10**precision))/(10**precision)
 
 
@@ -148,18 +150,16 @@ def dict_map(d, mapper):
     return {k: mapper(v) for k, v in d.iteritems()}
 
 
+def random_string(length=8):
+    candidates = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'
+    return ''.join(choice(candidates) for i in range(length))
+
 # def random_string(length=None):
 #     string1 = str(uuid.uuid4()).replace('-', '')
 #     string2 = str(uuid.uuid4()).replace('-', '')
 #     if length:
 #         string = string1[:length/2] + string2[:(length-length/2)]
 #     return string
-
-
-def random_string(length=8):
-    candidates = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'
-    return ''.join(choice(candidates) for i in range(length))
-
 
 def npartition(string, n=1, delimiter=' '):
     """
