@@ -21,6 +21,7 @@ from collections import OrderedDict
 import calendar
 import xlsxwriter
 from random import choice
+import csv
 
 # import MySQLdb
 # from sqlalchemy.ext.associationproxy import (
@@ -786,3 +787,15 @@ def totimestamp(dt, epoch=datetime(1970, 1, 1)):
 
 def join_non_nulls(strings, delimiter=", "):
     return delimiter.join([s for s in strings if s is not None and s != ""])
+
+
+def split_csv_into_columns(csvfilepath):
+    cols = {}
+    with open(csvfilepath) as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            for k, v in row.items():
+                if k not in cols:
+                    cols[k] = []
+                cols[k].append(v)
+    return cols
