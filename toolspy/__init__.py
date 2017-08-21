@@ -151,8 +151,7 @@ def dict_map(d, mapper):
     return {k: mapper(v) for k, v in d.iteritems()}
 
 
-def random_string(length=8):
-    candidates = 'ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'
+def random_string(length=8, candidates='ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'):
     return ''.join(choice(candidates) for i in range(length))
 
 # def random_string(length=None):
@@ -799,3 +798,27 @@ def split_csv_into_columns(csvfilepath):
                     cols[k] = []
                 cols[k].append(v)
     return cols
+
+
+def financial_year(dt):
+    def fy_format(y1, y2):
+        return "{0}-{1}".format(y1, y2)
+
+    if dt.month <= 3:
+        return fy_format(dt.year - 1, dt.year)
+    return fy_format(dt.year, dt.year + 1)
+
+
+def is_number(s):
+    if isinstance(s, int) or isinstance(s, float) or isinstance(s, Decimal):
+        return True
+    else:
+        try:
+            int(s)
+            return True
+        except:
+            try:
+                float(s)
+                return True
+            except:
+                return False
