@@ -4,7 +4,7 @@
 #########################################################
 
 from itertools import chain, groupby, product
-from operator import attrgetter
+from operator import attrgetter, itemgetter
 from contextlib import contextmanager
 from inspect import ismethod
 import re
@@ -822,3 +822,14 @@ def is_number(s):
                 return True
             except:
                 return False
+
+def median(items, sort=True):
+    if sort:
+        items = sorted(items, key=itemgetter(0))
+    freq_sum = sum(item[1] for item in items)
+    partial_freq_sum = 0
+    for item in items:
+        partial_freq_sum += item[1]
+        if partial_freq_sum * 2 >= freq_sum:
+            return item[0]
+    return None
