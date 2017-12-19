@@ -835,3 +835,13 @@ def median(items, sort=True):
         if partial_freq_sum * 2 >= freq_sum:
             return item[0]
     return None
+
+def sans_none(*items):
+    skipped = [i for i in items if i is not None]
+    return skipped
+
+def min_sans_none(*items):
+    skipped = sans_none(*items)
+    if len(skipped) == 0:
+        return None
+    return min(skipped)
