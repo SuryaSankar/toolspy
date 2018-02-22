@@ -22,7 +22,7 @@ import calendar
 import xlsxwriter
 from random import choice
 import csv
-
+import zipfile
 # import MySQLdb
 # from sqlalchemy.ext.associationproxy import (
 #     _AssociationDict, _AssociationList)
@@ -33,6 +33,8 @@ try:
     from urlparse import parse_qs, urlsplit, urlunsplit
 except:
     pass
+
+import requests
 
 EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
 
@@ -317,6 +319,103 @@ def has_duplicates(l):
 
 def remove_duplicates(l):
     return list(set(l))
+
+def get_list_item(l, idx):
+    if l is None or idx is None:
+        return None
+    if idx > len(l) - 1:
+        return None
+    return l[idx]
+
+def insert_list_item(l, idx, item):
+    if l is None or idx is None:
+        return None
+    if idx > len(l) - 1:
+        for _ in range(idx):
+            l.append(None)
+        l.append(item)
+    else:
+        if l[idx] is None:
+            l[idx] = item
+        else:
+            l.insert(idx, item)
+    return l
+
+def preceding_items_list(l, item):
+    if item not in l:
+        return []
+    return l[:l.index(item)]
+
+def succeeding_items_list(l, item):
+    if item not in l:
+        return []
+    return l[l.index(item) + 1:]
+
+def partition_list(l, pivot_item):
+    return [preceding_items_list(l, pivot_item), pivot_item, succeeding_items_list(l, pivot_item)]
+
+
+def merge_lists(list_of_lists):
+    final_list = []
+    item_predecessors = {}
+
+    unique_items = remove_duplicates(flatten(list_of_lists))
+    item_priorities = {}
+
+    for item in unique_items:
+        preceding_items = remove_duplicates(flatten([preceding_items_list(l, item) for l in list_of_lists]))
+        for p_item in preceding_items:
+            if p_item in item_predecessors and item in item_predecessors[p_item]:
+                preceding_items.remove(p_item)
+        item_predecessors[item] = preceding_items
+    print "Item predecessors ", item_predecessors
+
+    items_to_be_checked = difference(unique_items, item_priorities.keys())
+    loop_ctr = -1
+    while len(items_to_be_checked) > 0:
+        loop_ctr += 1
+        print "Starting loop {0}".format(loop_ctr)
+        print "items to be checked ", items_to_be_checked
+        for item in items_to_be_checked:
+            predecessors = item_predecessors[item]
+            if len(predecessors) == 0:
+                item_priorities[item] = 0
+            else:
+                if all(pred in item_priorities for pred in predecessors):
+                    item_priorities[item] = max([item_priorities[p] for p in predecessors]) + 1
+        print "item_priorities at end of loop ", item_priorities
+        items_to_be_checked = difference(unique_items, item_priorities.keys())
+        print "items to be checked at end of loop ", items_to_be_checked
+        print
+
+    final_list = sorted(unique_items, key=lambda item: item_priorities[item])
+    return final_list
+
+    # V2
+    # item_indices = {}
+    # for l_idx, l in enumerate(list_of_lists):
+    #     for item_idx, item in enumerate(l):
+    #         if item not in item_indices:
+    #             item_indices[item] = {}
+    #         item_indices[item][l_idx] = item_idx
+    # print item_indices
+    # for item, indices in item_indices.items():
+    #     min_idx = min_sans_none(*indices.values())
+    #     print "for item {0}, min_idx {1}".format(item, min_idx)
+    #     if item not in final_list:
+    #         insert_list_item(final_list, min_idx, item)
+    #     print "final list is ", final_list
+    #     print
+    # final_list = [_ for _ in final_list if _ is not None]
+
+    # V1
+    # max_list_len = max(len(l) for l in list_of_lists)
+    # for idx in range(max_list_len):
+    #     for l in list_of_lists:
+    #         item = get_list_item(l, idx)
+    #         if item and item not in final_list:
+    #             final_list.append(item)
+    # return final_list
 
 
 def get_if_exists(obj, attr):
@@ -845,3 +944,32 @@ def min_sans_none(*items):
     if len(skipped) == 0:
         return None
     return min(skipped)
+
+def zipdir(dir_path, zip_file_path):
+    zipf = zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED)
+    for parent_dir, subdirs, files in os.walk(dir_path):
+        parent_dir_in_zip = parent_dir[len(dir_path) + 1:]
+        for subdir in subdirs:
+            subdir_path = os.path.join(parent_dir, subdir)
+            subdir_path_in_zip = os.path.join(parent_dir_in_zip, subdir)
+            zipf.write(subdir_path, subdir_path_in_zip)
+        for file in files:
+            file_path = os.path.join(parent_dir, file)
+            file_path_in_zip = os.path.join(parent_dir_in_zip, file)
+            zipf.write(file_path, file_path_in_zip)
+    zipf.close()
+
+
+def download_file(url, local_file_path=None):
+    if url is None:
+        return None
+    if local_file_path is None:
+        local_file_path = url.split('/')[-1]
+    r = requests.get(url, stream=True)
+    with open(local_file_path, 'wb') as f:
+        for chunk in r.iter_content(chunk_size=1024): 
+            if chunk:
+                f.write(chunk)
+    return local_file_path
+
+
