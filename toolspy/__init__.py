@@ -842,6 +842,16 @@ def delete_dict_keys(d, keys):
         if k in d:
             del d[k]
 
+def copy_without_keys(d, keys):
+    output = {}
+    for k in d.keys():
+        if k not in keys:
+            output[k] = d[k]
+    return output
+    # for k in keys:
+    #     if k in d:
+    #         del d[k]
+
 def fetch_nested_key(obj, key_string):
     if key_string is None:
         return None
