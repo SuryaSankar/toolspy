@@ -357,13 +357,16 @@ def partition_list(l, pivot_item):
 
 
 def merge_lists(list_of_lists):
-    final_list = []
     item_predecessors = {}
+    unique_items = []
+    for l in list_of_lists:
+        for item in l:
+            if item not in unique_items:
+                unique_items.append(item)
 
-    unique_items = remove_duplicates(flatten(list_of_lists))
     item_priorities = {}
 
-    for item in unique_items:
+    for item in reversed(unique_items):
         preceding_items = remove_duplicates(flatten([preceding_items_list(l, item) for l in list_of_lists]))
         for p_item in preceding_items:
             if p_item in item_predecessors and item in item_predecessors[p_item]:
