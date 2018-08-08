@@ -363,6 +363,7 @@ def merge_lists(list_of_lists):
         for item in l:
             if item not in unique_items:
                 unique_items.append(item)
+    print "unique items is ", unique_items
 
     item_priorities = {}
 
@@ -381,12 +382,18 @@ def merge_lists(list_of_lists):
         print "Starting loop {0}".format(loop_ctr)
         print "items to be checked ", items_to_be_checked
         for item in items_to_be_checked:
+            print "Item being checked is %s" % item
             predecessors = item_predecessors[item]
+            print "predecessors are ", predecessors
             if len(predecessors) == 0:
                 item_priorities[item] = 0
+                print "Set priority of item to 0"
             else:
                 if all(pred in item_priorities for pred in predecessors):
                     item_priorities[item] = max([item_priorities[p] for p in predecessors]) + 1
+                    print "Set priority of item to %s" % item_priorities[item]
+                else:
+                    print "Doing nothing for ", item
         print "item_priorities at end of loop ", item_priorities
         items_to_be_checked = difference(unique_items, item_priorities.keys())
         print "items to be checked at end of loop ", items_to_be_checked
@@ -839,6 +846,11 @@ def int_safe_cast(val):
     if val is None:
         return None
     return int(val)
+
+def null_safe_type_cast(_type_to_cast, val):
+    if val is None:
+        return None
+    return _type_to_cast(val)
 
 def delete_dict_keys(d, keys):
     for k in keys:
