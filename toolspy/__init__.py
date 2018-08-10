@@ -377,7 +377,7 @@ def merge_lists(list_of_lists):
 
     items_to_be_checked = difference(unique_items, item_priorities.keys())
     loop_ctr = -1
-    while len(items_to_be_checked) > 0 and loop_ctr <= 10000:
+    while len(items_to_be_checked) > 0 and loop_ctr <= 1000:
         loop_ctr += 1
         print "Starting loop {0}".format(loop_ctr)
         print "items to be checked ", items_to_be_checked
@@ -399,7 +399,7 @@ def merge_lists(list_of_lists):
         print "items to be checked at end of loop ", items_to_be_checked
         print
 
-    final_list = sorted(unique_items, key=lambda item: item_priorities[item])
+    final_list = sorted(unique_items, key=lambda item: item_priorities.get(item) or 0)
     return final_list
 
     # V2
