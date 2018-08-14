@@ -35,6 +35,8 @@ except:
     pass
 
 import requests
+from boto.s3.connection import S3Connection
+from boto.s3.key import Key
 
 
 EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
@@ -997,6 +999,24 @@ def download_file(url, local_file_path=None):
             if chunk:
                 f.write(chunk)
     return local_file_path
+
+
+def upload_file_to_s3(aws_access_key, aws_secret_access_key, bucket_name,
+                      src_file_path, dest_file_path=None, headers=None,
+                      cache_expiry_days=30):
+    s3conn = S3Connection(aws_access_key, aws_secret_access_key)
+    bucket = s3conn.get_bucket(bucket_name)
+    k = Key(bucket)
+    k.key = dest_file_path or os.path.basename(src_file_path)
+    if headers is None:
+    	headers = {}
+    max_age_seconds = cache_expiry_days * 24 * 60 * 60
+    headers = merge({
+        'Cache-Control': 'public, max-age={0}'.format(max_age_seconds),
+        'Expires': (datetime.utcnow() + timedelta(days=cache_expiry_days)).strftime("%a, %d %b %Y %H:%M:%S GMT"),
+    }, headers)
+    res = k.set_contents_from_filename(src_file_path, headers)
+    return res
 
 
 
