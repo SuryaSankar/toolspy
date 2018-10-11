@@ -13,7 +13,6 @@ from decimal import Decimal
 import uuid
 import os
 # from werkzeug.utils import secure_filename
-import math
 from functools import wraps
 import errno
 import signal
@@ -22,7 +21,7 @@ import calendar
 import xlsxwriter
 from random import choice
 import csv
-import zipfile
+
 # import MySQLdb
 # from sqlalchemy.ext.associationproxy import (
 #     _AssociationDict, _AssociationList)
@@ -35,11 +34,15 @@ except:
     pass
 
 import requests
-from boto.s3.connection import S3Connection
-from boto.s3.key import Key
 
 
-EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
+from code_inspection_tools import *
+from web_tools import *
+from ds_tools import *
+from math_tools import *
+from filesystem_tools import *
+
+
 
 CUBIC_INCHES_IN_CUBIC_FEET = 12 * 12 * 12
 
@@ -59,28 +62,6 @@ CUBIC_INCHES_IN_CUBIC_FEET = 12 * 12 * 12
 class TimeoutError(Exception):
     pass
 
-
-def scd(cls):
-    if len(cls.__subclasses__())==0:
-        return {}
-    return {x: scd(x) for x in cls.__subclasses__()}
-
-# Lifted from http://stackoverflow.com/a/12897375
-def set_query_params(url, params):
-    """Given a URL, set or replace a query parameter and return the
-    modified URL.
-
-    >>> set_query_parameter('http://example.com?foo=bar&biz=baz', 'foo', 'stuff')
-    'http://example.com?foo=stuff&biz=baz'
-
-    """
-    scheme, netloc, path, query_string, fragment = urlsplit(url)
-    query_params = parse_qs(query_string)
-    for param_name, param_value in params.items():
-        query_params[param_name] = [param_value]
-    new_query_string = urlencode(query_params, doseq=True)
-
-    return urlunsplit((scheme, netloc, path, new_query_string, fragment))
 
 
 def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
@@ -102,91 +83,9 @@ def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
     return decorator
 
 
-def all_subclasses(cls):
-    return cls.__subclasses__() + [
-        g for s in cls.__subclasses__() for g in all_subclasses(s)]
 
 
-def hypotenuse(x, y):
-    return math.sqrt(x**2 + y**2)
 
-
-def mean(list):
-    if len(list) == 0:
-        return None
-    try:
-        return round_float(sum(x or 0 for x in list)/len(list))
-    except:
-        return None
-
-
-def union(list_of_lists):
-    if len(list_of_lists) == 0:
-        return []
-    return list(set.union(*[set(l) for l in list_of_lists]))
-    # return frozenset().union(*[set(l) for l in list_of_lists])
-
-
-def intersection(list_of_lists):
-    if len(list_of_lists) == 0:
-        return []
-    return list(set.intersection(*[set(l) for l in list_of_lists]))
-
-
-def difference(list1, list2):
-    result = []
-    for item in list1:
-        if item not in list2:
-            result.append(item)
-    return result
-    # return list(set(list1).difference(set(list2)))
-
-
-def symmetric_difference(list1, list2):
-    return list(set(list1).symmetric_difference(set(list2)))
-
-
-def round_float(value, precision=2):
-    if value is None:
-        return None
-    return math.ceil(value*(10**precision))/(10**precision)
-
-
-def dict_map(d, mapper):
-    return {k: mapper(v) for k, v in d.iteritems()}
-
-
-def random_string(length=8, candidates='ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'):
-    return ''.join(choice(candidates) for i in range(length))
-
-# def random_string(length=None):
-#     string1 = str(uuid.uuid4()).replace('-', '')
-#     string2 = str(uuid.uuid4()).replace('-', '')
-#     if length:
-#         string = string1[:length/2] + string2[:(length-length/2)]
-#     return string
-
-def npartition(string, n=1, delimiter=' '):
-    """
-    Similar to python's built in partition method. But will
-    split at the nth occurence of delimiter
-    """
-    groups = string.split(delimiter)
-    return (delimiter.join(groups[:n]), delimiter, delimiter.join(groups[n:]))
-
-
-def percentage(numerator, denominator):
-    if numerator is None or denominator is None or denominator == 0:
-        return None
-    value = float(numerator)*100/float(denominator)
-    return math.ceil(value*100)/100
-
-
-def percentage_markup(original, percent):
-    return monetize(original + (Decimal(percent) / 100) * original)
-
-def discount_percent(original_price, new_price):
-    return percentage(original_price-new_price, original_price)
 
 
 # def generate_unique_file_name(seed_name):
@@ -209,250 +108,10 @@ def boolify(val):
     return val.lower() in ['true', 'yes']
 
 
-def unique_sublists(lst, duplicate_checker=None):
-    if duplicate_checker is None:
-        duplicate_checker = lambda item, lst: item in lst
-    sublists = [[]]
-    for item in lst:
-        for sublist in sublists:
-            if not duplicate_checker(item, sublist):
-                sublist.append(item)
-                break
-        else:
-            sublists.append([item])
-
-    return sublists
-
-
-def is_email(mailstr):
-    """
-    Checks if a string matches the Email regex
-    """
-    return ((isinstance(mailstr, str) or isinstance(mailstr, unicode))
-            and bool(EMAIL_REGEX.match(mailstr)))
-
-
-def place_nulls(key, input_keyvals, output_results):
-    """
-    Useful in a specific case when you want to verify that a mapped list
-    object returns objects corresponding to input list.
-    Hypothetical example:
-    Customer.raw_get_all([1,2,3]) returns [C1, C3]
-    There is no customer with id 2 in db. But this is bad for us becaause
-    we will want to iterate like zip (input, output) if possible. So we
-    need to place nulls wherever the list is missing an output value. This
-    function will make the list as [C1, None, C3]
-    """
-    if len(input_keyvals) != len(output_results):
-        for index, keyval in enumerate(input_keyvals):
-            try:
-                if getattr(output_results[index], key) != keyval:
-                    output_results.insert(index, None)
-            except IndexError:
-                output_results.insert(index, None)
-    return output_results
-
-
-def reverse_dict(d):
-    return {v: k for k, v in d.items()}
-
-
-def subdict(dictionary, keys):
-    """
-    >>>a={1:3, 4:5, 6:7}
-    >>>subdict(a, [4,6])
-    {4: 5, 6: 7}
-    """
-    return (dict((k, dictionary[k]) for k in keys if k in dictionary)
-            if len(keys) > 0 else dictionary)
-
-
-def remove_and_mark_duplicate_dicts(list_of_dicts, keys):
-    result_dicts = []
-    marks = {}
-    for idx, d in enumerate(list_of_dicts):
-        for rd in result_dicts:
-            if subdict(d, keys) == subdict(rd, keys):
-                marks[idx] = result_dicts.index(rd)
-                break
-        else:
-            result_dicts.append(d)
-    return (result_dicts, marks)
-
-
-def dict_without_keys(dictionary, keys):
-    return {k: v for k, v in dictionary.items() if k not in keys}
-
-
-def add_kv_to_dict(dictionary, key, value):
-    """
-    >>> a={1:3, 4:5, 6:7}
-    >>> add_kv_to_dict(a, 6, 9)
-    {1: 3, 4: 5, 6: 9}
-    """
-    return dict(chain(dictionary.items(), [(key, value)]))
-
-
-def merge(*dicts):
-    """
-    >>> a={1:2, 3:4}
-    >>> b={5:6, 7:8}
-    >>> merge(a,b)
-    {1: 2, 3: 4, 5: 6, 7: 8}
-    """
-    return dict(chain(*[_dict.iteritems() for _dict in dicts]))
-
-
-def add_kv_if_absent(dictionary, key, value):
-        if key not in dictionary:
-            dictionary[key] = value
-        return dictionary
-
-
-def has_duplicates(l):
-    try:
-        return len(l) != len(set(l))
-    except:
-        for i in range(len(l)):
-            for j in range(i + 1, len(l)):
-                if l[i] == l[j]:
-                    return True
-        return False
-
-
-def remove_duplicates(l):
-    return list(set(l))
-
-def get_list_item(l, idx):
-    if l is None or idx is None:
-        return None
-    if idx > len(l) - 1:
-        return None
-    return l[idx]
-
-def insert_list_item(l, idx, item):
-    if l is None or idx is None:
-        return None
-    if idx > len(l) - 1:
-        for _ in range(idx):
-            l.append(None)
-        l.append(item)
-    else:
-        if l[idx] is None:
-            l[idx] = item
-        else:
-            l.insert(idx, item)
-    return l
-
-def preceding_items_list(l, item):
-    if item not in l:
-        return []
-    return l[:l.index(item)]
-
-def succeeding_items_list(l, item):
-    if item not in l:
-        return []
-    return l[l.index(item) + 1:]
-
-def partition_list(l, pivot_item):
-    return [preceding_items_list(l, pivot_item), pivot_item, succeeding_items_list(l, pivot_item)]
-
-
-def merge_lists(list_of_lists):
-    item_predecessors = {}
-    unique_items = []
-    for l in list_of_lists:
-        for item in l:
-            if item not in unique_items:
-                unique_items.append(item)
-    print "unique items is ", unique_items
-
-    item_priorities = {}
-
-    for item in reversed(unique_items):
-        preceding_items = remove_duplicates(flatten([preceding_items_list(l, item) for l in list_of_lists]))
-        for p_item in preceding_items:
-            if p_item in item_predecessors and item in item_predecessors[p_item]:
-                preceding_items.remove(p_item)
-        item_predecessors[item] = preceding_items
-    print "Item predecessors ", item_predecessors
-
-    items_to_be_checked = difference(unique_items, item_priorities.keys())
-    loop_ctr = -1
-    while len(items_to_be_checked) > 0 and loop_ctr <= 1000:
-        loop_ctr += 1
-        print "Starting loop {0}".format(loop_ctr)
-        print "items to be checked ", items_to_be_checked
-        for item in items_to_be_checked:
-            print "Item being checked is %s" % item
-            predecessors = item_predecessors[item]
-            print "predecessors are ", predecessors
-            if len(predecessors) == 0:
-                item_priorities[item] = 0
-                print "Set priority of item to 0"
-            else:
-                if all(pred in item_priorities for pred in predecessors):
-                    item_priorities[item] = max([item_priorities[p] for p in predecessors]) + 1
-                    print "Set priority of item to %s" % item_priorities[item]
-                else:
-                    print "Doing nothing for ", item
-        print "item_priorities at end of loop ", item_priorities
-        items_to_be_checked = difference(unique_items, item_priorities.keys())
-        print "items to be checked at end of loop ", items_to_be_checked
-        print
-
-    final_list = sorted(unique_items, key=lambda item: item_priorities.get(item) or 0)
-    return final_list
-
-    # V2
-    # item_indices = {}
-    # for l_idx, l in enumerate(list_of_lists):
-    #     for item_idx, item in enumerate(l):
-    #         if item not in item_indices:
-    #             item_indices[item] = {}
-    #         item_indices[item][l_idx] = item_idx
-    # print item_indices
-    # for item, indices in item_indices.items():
-    #     min_idx = min_sans_none(*indices.values())
-    #     print "for item {0}, min_idx {1}".format(item, min_idx)
-    #     if item not in final_list:
-    #         insert_list_item(final_list, min_idx, item)
-    #     print "final list is ", final_list
-    #     print
-    # final_list = [_ for _ in final_list if _ is not None]
-
-    # V1
-    # max_list_len = max(len(l) for l in list_of_lists)
-    # for idx in range(max_list_len):
-    #     for l in list_of_lists:
-    #         item = get_list_item(l, idx)
-    #         if item and item not in final_list:
-    #             final_list.append(item)
-    # return final_list
-
 
 def get_if_exists(obj, attr):
     return getattr(obj, attr, None) if obj else None
 
-
-def monetize(number):
-    """
-    Function used for rounding off numbers to a fixed number of
-    places.
-    >>> monetize(3.4389)
-    Decimal('3.44')
-    >>> monetize(3.4334)
-    Decimal('3.43')
-    """
-    if number is None:
-        return None
-    return Decimal(number).quantize(Decimal('.01'))
-
-
-def quantize(number):
-    if number is None:
-        return None
-    return Decimal(number).quantize(Decimal('.01'))
 
 
 def sanitize(source_dict, whitelist, additional_params={}, keys_to_modify={},
@@ -479,28 +138,6 @@ def sanitize(source_dict, whitelist, additional_params={}, keys_to_modify={},
 
     return merge(source_dict, additional_params)
 
-
-def is_int(s):
-    if isinstance(s, int):
-        return True
-    else:
-        try:
-            int(s)
-            return True
-        except:
-            return False
-
-
-def flatten(list_of_lists):
-    """
-    >>> flatten([[1,2], [3,4,5]])
-    [1, 2, 3, 4, 5]
-    """
-    return [item for sublist in list_of_lists for item in sublist]
-
-
-def filtered_list(olist, exclude_list):
-    return filter(lambda i: i not in exclude_list, olist)
 
 
 def capitalize_words(sentence):
@@ -833,14 +470,6 @@ def write_xlsx_sheet(xlsx_file, rows=[], cols=[]):
     workbook.close()
 
 
-def correct_subclass(klass, discriminator):
-    try:
-        return next(
-            c for c in all_subclasses(klass)
-            if c.__mapper_args__['polymorphic_identity'] == discriminator)
-    except:
-        return None
-
 def is_subset_of(set1, set2):
     return all(el in set2 for el in set1)
 
@@ -929,28 +558,6 @@ def split_csv_into_columns(csvfilepath):
     return cols
 
 
-def financial_year(dt):
-    def fy_format(y1, y2):
-        return "{0}-{1}".format(y1, y2)
-
-    if dt.month <= 3:
-        return fy_format(dt.year - 1, dt.year)
-    return fy_format(dt.year, dt.year + 1)
-
-
-def is_number(s):
-    if isinstance(s, int) or isinstance(s, float) or isinstance(s, Decimal):
-        return True
-    else:
-        try:
-            int(s)
-            return True
-        except:
-            try:
-                float(s)
-                return True
-            except:
-                return False
 
 def median(items, sort=True):
     if sort:
@@ -973,50 +580,7 @@ def min_sans_none(*items):
         return None
     return min(skipped)
 
-def zipdir(dir_path, zip_file_path):
-    zipf = zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED)
-    for parent_dir, subdirs, files in os.walk(dir_path):
-        parent_dir_in_zip = parent_dir[len(dir_path) + 1:]
-        for subdir in subdirs:
-            subdir_path = os.path.join(parent_dir, subdir)
-            subdir_path_in_zip = os.path.join(parent_dir_in_zip, subdir)
-            zipf.write(subdir_path, subdir_path_in_zip)
-        for file in files:
-            file_path = os.path.join(parent_dir, file)
-            file_path_in_zip = os.path.join(parent_dir_in_zip, file)
-            zipf.write(file_path, file_path_in_zip)
-    zipf.close()
 
-
-def download_file(url, local_file_path=None):
-    if url is None:
-        return None
-    if local_file_path is None:
-        local_file_path = url.split('/')[-1]
-    r = requests.get(url, stream=True)
-    with open(local_file_path, 'wb') as f:
-        for chunk in r.iter_content(chunk_size=1024): 
-            if chunk:
-                f.write(chunk)
-    return local_file_path
-
-
-def upload_file_to_s3(aws_access_key, aws_secret_access_key, bucket_name,
-                      src_file_path, dest_file_path=None, headers=None,
-                      cache_expiry_days=30):
-    s3conn = S3Connection(aws_access_key, aws_secret_access_key)
-    bucket = s3conn.get_bucket(bucket_name)
-    k = Key(bucket)
-    k.key = dest_file_path or os.path.basename(src_file_path)
-    if headers is None:
-    	headers = {}
-    max_age_seconds = cache_expiry_days * 24 * 60 * 60
-    headers = merge({
-        'Cache-Control': 'public, max-age={0}'.format(max_age_seconds),
-        'Expires': (datetime.utcnow() + timedelta(days=cache_expiry_days)).strftime("%a, %d %b %Y %H:%M:%S GMT"),
-    }, headers)
-    res = k.set_contents_from_filename(src_file_path, headers)
-    return res
 
 
 
