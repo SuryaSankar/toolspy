@@ -22,8 +22,10 @@ def percentage(numerator, denominator):
 def percentage_markup(original, percent):
     return monetize(original + (Decimal(percent) / 100) * original)
 
+
 def discount_percent(original_price, new_price):
     return percentage(original_price-new_price, original_price)
+
 
 def monetize(number):
     """
@@ -43,6 +45,7 @@ def quantize(number):
     if number is None:
         return None
     return Decimal(number).quantize(Decimal('.01'))
+
 
 def financial_year(dt):
     def fy_format(y1, y2):
@@ -67,6 +70,7 @@ def is_number(s):
             except:
                 return False
 
+
 def is_int(s):
     if isinstance(s, int):
         return True
@@ -76,4 +80,3 @@ def is_int(s):
             return True
         except:
             return False
-
