@@ -1,6 +1,11 @@
 import zipfile
 from boto.s3.connection import S3Connection
 from boto.s3.key import Key
+import os
+from datetime import datetime, timedelta
+import requests
+from contextlib import contextmanager
+from .collection_tools import merge
 
 
 def zipdir(dir_path, zip_file_path):
@@ -25,7 +30,7 @@ def download_file(url, local_file_path=None):
         local_file_path = url.split('/')[-1]
     r = requests.get(url, stream=True)
     with open(local_file_path, 'wb') as f:
-        for chunk in r.iter_content(chunk_size=1024): 
+        for chunk in r.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
     return local_file_path
@@ -39,7 +44,7 @@ def upload_file_to_s3(aws_access_key, aws_secret_access_key, bucket_name,
     k = Key(bucket)
     k.key = dest_file_path or os.path.basename(src_file_path)
     if headers is None:
-    	headers = {}
+        headers = {}
     max_age_seconds = cache_expiry_days * 24 * 60 * 60
     headers = merge({
         'Cache-Control': 'public, max-age={0}'.format(max_age_seconds),
@@ -47,3 +52,11 @@ def upload_file_to_s3(aws_access_key, aws_secret_access_key, bucket_name,
     }, headers)
     res = k.set_contents_from_filename(src_file_path, headers)
     return res
+
+
+@contextmanager
+def chdir(directory):
+    cwd = os.getcwd()
+    os.chdir(directory)
+    yield
+    os.chdir(cwd)
