@@ -1,3 +1,12 @@
+# -*- coding: utf-8 -*-
+
+"""Top-level package for Toolspy."""
+
+__author__ = """Surya Sankar"""
+__email__ = 'suryashankar.m@gmail.com'
+__version__ = '0.2.29'
+
+
 #########################################################
 # Add Generic methods independent of any App logic here.
 # This module is meant to be a Python tool set.
@@ -17,14 +26,14 @@ import requests
 from contextlib import contextmanager
 
 
-from code_inspection_tools import *
-from web_tools import *
-from collection_tools import *
-from math_tools import *
-from filesystem_tools import *
-from datetime_tools import *
-from csv_xl_tools import *
-from string_tools import *
+from .code_inspection_tools import *
+from .web_tools import *
+from .collection_tools import *
+from .math_tools import *
+from .filesystem_tools import *
+from .datetime_tools import *
+from .csv_xl_tools import *
+from .string_tools import *
 
 CUBIC_INCHES_IN_CUBIC_FEET = 12 * 12 * 12
 
