@@ -166,6 +166,16 @@ def merge(*dicts):
     """
     return dict(chain(*[_dict.iteritems() for _dict in dicts]))
 
+def deep_merge(*dicts):
+    merged_dict = {}
+    for _dict in dicts:
+        for k, v in _dict.items():
+            if k in merged_dict and isinstance(v, dict):
+                merged_dict[k] = deep_merge(v, merged_dict[k])
+            else:
+                merged_dict[k] = v
+    return merged_dict
+
 
 def add_kv_if_absent(dictionary, key, value):
     if key not in dictionary:
@@ -525,6 +535,34 @@ def all_combinations(list_of_keys, lists_of_lists_of_vals):
 def is_subset_of(set1, set2):
     return all(el in set2 for el in set1)
 
+def is_subdict_of(dict1, dict2, allow_sub_lists=False):
+    for k, v in dict1.iteritems():
+        if k not in dict2:
+            return False
+        if v != dict2[k]:
+            if isinstance(v, dict):
+                if not isinstance(dict2[k], dict) or not is_subdict_of(v, dict2[k]):
+                    return False
+            elif allow_sub_lists and (isinstance(v, list) or isinstance(v, set)):
+                return is_subset_of(v, dict2[k])
+            else:
+                return False
+    return True
+
+# def difference(dict1, dict2):
+#     intersection_dict = {}
+#     for k, v in dict1.iteritems():
+#         if k in dict2:
+#             if v == dict
+#             if v != dict2[k]:
+#                 if isinstance(v, dict):
+#                     if not isinstance(dict2[k], dict) or not is_subdict_of(v, dict2[k]):
+#                         return False
+#                 elif allow_sub_lists and (isinstance(v, list) or isinstance(v, set)):
+#                     return is_subset_of(v, dict2[k])
+#                 else:
+#                     return False
+#     return True   
 
 def sum_attr_vals(items, prop, skip_nones=False):
     total = 0
@@ -537,3 +575,17 @@ def sum_attr_vals(items, prop, skip_nones=False):
                 return None
         total += val
     return total
+
+def boolean_or_of_dicts(*dicts):
+    result = {}
+    for d in dicts:
+        for k, v in d.iteritems():
+            result[k] = result[k] or v
+    return result
+
+def boolean_and_of_dicts(*dicts):
+    result = {}
+    for d in dicts:
+        for k, v in d.iteritems():
+            result[k] = result[k] and v
+    return result
