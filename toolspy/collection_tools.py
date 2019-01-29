@@ -580,12 +580,12 @@ def boolean_or_of_dicts(*dicts):
     result = {}
     for d in dicts:
         for k, v in d.iteritems():
-            result[k] = result[k] or v
+            result[k] = bool(result.get(k) or v)
     return result
 
 def boolean_and_of_dicts(*dicts):
     result = {}
     for d in dicts:
         for k, v in d.iteritems():
-            result[k] = result[k] and v
+            result[k] = bool(result.get(k) and v)
     return result
