@@ -16,9 +16,9 @@ requirements = [
     'boto>=2.49.0', 'xlsxwriter'
 ]
 
-setup_requirements = ['pytest-runner', ]
+setup_requirements = [ ]
 
-test_requirements = ['pytest', ]
+test_requirements = ['pytest', 'pytest-runner' ]
 
 setup(
     author="Surya Sankar",
