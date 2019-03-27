@@ -107,6 +107,23 @@ def null_safe_type_cast(_type_to_cast, val):
         return None
     return _type_to_cast(val)
 
+def get_attr_with_collection_handling(obj, attr):
+    if isinstance(obj, list):
+        return [get_attr_with_collection_handling(i, attr) for i in obj]
+    elif isinstance(obj, dict):
+        return {k: get_attr_with_collection_handling(v, attr) for k, v in obj.iteritems()}
+    return getattr(obj, attr)
+
+def smart_get(obj, key_string):
+    if obj is None or key_string is None:
+        return None
+    if '.' not in key_string:
+        return get_attr_with_collection_handling(obj, key_string)
+    next_key, dot, remaining_keys = key_string.partition(".")
+    next_obj = get_attr_with_collection_handling(obj, next_key)
+    return smart_get(next_obj, remaining_keys)
+
+
 
 def fetch_nested_key(obj, key_string):
     if key_string is None:
