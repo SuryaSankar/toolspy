@@ -21,7 +21,6 @@ from functools import wraps
 import errno
 import signal
 import csv
-import MySQLdb
 import requests
 from contextlib import contextmanager
 
@@ -71,6 +70,7 @@ def boolify(val):
 
 @contextmanager
 def dbconn(server, user, password, database=None):
+    import MySQLdb
     if database is None:
         conn = MySQLdb.connect(server, user, password)
     else:
