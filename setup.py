@@ -11,7 +11,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['requests',]
+requirements = ['requests', 'boto', 'xlsxwriter']
 
 setup_requirements = [ ]
 
@@ -50,6 +50,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/SuryaSankar/toolspy',
-    version='0.2.42',
+    version='0.2.43',
     zip_safe=False,
 )
