@@ -2,6 +2,8 @@
 
 """Top-level package for Toolspy."""
 
+from __future__ import absolute_import
+import six
 __author__ = """Surya Sankar"""
 __email__ = 'suryashankar.m@gmail.com'
 __version__ = '0.2.29'
@@ -111,7 +113,7 @@ def get_attr_with_collection_handling(obj, attr):
     if isinstance(obj, list):
         return [get_attr_with_collection_handling(i, attr) for i in obj]
     elif isinstance(obj, dict):
-        return {k: get_attr_with_collection_handling(v, attr) for k, v in obj.iteritems()}
+        return {k: get_attr_with_collection_handling(v, attr) for k, v in six.iteritems(obj)}
     return getattr(obj, attr)
 
 def smart_get(obj, key_string):

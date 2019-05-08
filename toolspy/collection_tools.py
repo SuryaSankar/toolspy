@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from collections import defaultdict
 from itertools import chain, groupby, product
 from operator import attrgetter, itemgetter
@@ -5,6 +6,9 @@ from collections import OrderedDict
 from inspect import ismethod
 from .math_tools import round_float
 from contextlib import contextmanager
+import six
+from six.moves import range
+from six.moves import zip
 
 
 def get_if_exists(obj, attr):
@@ -23,7 +27,7 @@ def use_and_throw(d, k):
 
 
 def public_dict(obj):
-    d = dict((k, v) for k, v in obj.__dict__.iteritems()
+    d = dict((k, v) for k, v in six.iteritems(obj.__dict__)
              if not k.startswith('_'))
     return d
 
@@ -118,7 +122,7 @@ def place_nulls(key, input_keyvals, output_results):
 
 
 def reverse_dict(d):
-    return {v: k for k, v in d.items()}
+    return {v: k for k, v in list(d.items())}
 
 
 def subdict(dictionary, keys):
@@ -145,7 +149,7 @@ def remove_and_mark_duplicate_dicts(list_of_dicts, keys):
 
 
 def dict_without_keys(dictionary, keys):
-    return {k: v for k, v in dictionary.items() if k not in keys}
+    return {k: v for k, v in list(dictionary.items()) if k not in keys}
 
 
 def add_kv_to_dict(dictionary, key, value):
@@ -154,7 +158,7 @@ def add_kv_to_dict(dictionary, key, value):
     >>> add_kv_to_dict(a, 6, 9)
     {1: 3, 4: 5, 6: 9}
     """
-    return dict(chain(dictionary.items(), [(key, value)]))
+    return dict(chain(list(dictionary.items()), [(key, value)]))
 
 
 def merge(*dicts):
@@ -164,7 +168,7 @@ def merge(*dicts):
     >>> merge(a,b)
     {1: 2, 3: 4, 5: 6, 7: 8}
     """
-    return dict(chain(*[_dict.iteritems() for _dict in dicts]))
+    return dict(chain(*[six.iteritems(_dict) for _dict in dicts]))
 
 def deep_merge(*dicts):
     merged_dict = {}
@@ -255,7 +259,7 @@ def merge_lists(list_of_lists):
                 preceding_items.remove(p_item)
         item_predecessors[item] = preceding_items
 
-    items_to_be_checked = difference(unique_items, item_priorities.keys())
+    items_to_be_checked = difference(unique_items, list(item_priorities.keys()))
     loop_ctr = -1
     while len(items_to_be_checked) > 0 and loop_ctr <= 1000:
         loop_ctr += 1
@@ -273,7 +277,7 @@ def merge_lists(list_of_lists):
                     item_priorities[item] = max(
                         [item_priorities[p] for p in predecessors]) + 1
                     # print "Set priority of item to %s" % item_priorities[item]
-        items_to_be_checked = difference(unique_items, item_priorities.keys())
+        items_to_be_checked = difference(unique_items, list(item_priorities.keys()))
         # print "items to be checked at end of loop ", items_to_be_checked
         # print
 
@@ -317,7 +321,7 @@ def unique_sublists(lst, duplicate_checker=None):
 
 
 def dict_map(d, mapper):
-    return {k: mapper(v) for k, v in d.iteritems()}
+    return {k: mapper(v) for k, v in six.iteritems(d)}
 
 
 def flatten(list_of_lists):
@@ -329,7 +333,7 @@ def flatten(list_of_lists):
 
 
 def filtered_list(olist, exclude_list):
-    return filter(lambda i: i not in exclude_list, olist)
+    return [i for i in olist if i not in exclude_list]
 
 
 def group(olist, key):
@@ -382,7 +386,7 @@ def sanitize(source_dict, whitelist, additional_params={}, keys_to_modify={},
     >>> sanitize(raw, whitelist=['name', 'email', 'postalcode'], additional_params={'state': 'Wyoming', 'country': 'US'}, keys_to_modify={'postalcode':'zipcode'})
     {'email': 'surya@s.com', 'state': 'Wyoming', 'country': 'US', 'zipcode': '55544', 'name': 'surya'}
     """
-    items = source_dict.items()
+    items = list(source_dict.items())
     for k, v in items:
         if k not in whitelist or value_filterer(v):
             del source_dict[k]
@@ -528,7 +532,7 @@ def add_to_struct(key, item, struct):
 
 
 def all_combinations(list_of_keys, lists_of_lists_of_vals):
-    return [dict(zip(list_of_keys, combo)) for combo in product(
+    return [dict(list(zip(list_of_keys, combo))) for combo in product(
         *lists_of_lists_of_vals)]
 
 
@@ -536,7 +540,7 @@ def is_subset_of(set1, set2):
     return all(el in set2 for el in set1)
 
 def is_subdict_of(dict1, dict2, allow_sub_lists=False):
-    for k, v in dict1.iteritems():
+    for k, v in six.iteritems(dict1):
         if k not in dict2:
             return False
         if v != dict2[k]:
@@ -579,13 +583,13 @@ def sum_attr_vals(items, prop, skip_nones=False):
 def boolean_or_of_dicts(*dicts):
     result = {}
     for d in dicts:
-        for k, v in d.iteritems():
+        for k, v in six.iteritems(d):
             result[k] = bool(result.get(k) or v)
     return result
 
 def boolean_and_of_dicts(*dicts):
     result = {}
     for d in dicts:
-        for k, v in d.iteritems():
+        for k, v in six.iteritems(d):
             result[k] = bool(result.get(k) and v)
     return result

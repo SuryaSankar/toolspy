@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """Console script for toolspy."""
+from __future__ import absolute_import
 import sys
 import click
 

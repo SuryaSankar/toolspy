@@ -1,6 +1,7 @@
+from __future__ import absolute_import
 try:
-    from urllib import urlencode
-    from urlparse import parse_qs, urlsplit, urlunsplit
+    from six.moves.urllib.parse import urlencode
+    from six.moves.urllib.parse import parse_qs, urlsplit, urlunsplit
 except:
     pass
 

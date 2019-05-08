@@ -1,9 +1,12 @@
+from __future__ import absolute_import
 import re
 from random import choice
+import six
+from six.moves import range
 
 
 def random_string(length=8, candidates='ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'):
-    return ''.join(choice(candidates) for i in range(length))
+    return ''.join(choice(candidates) for i in list(range(length)))
 
 
 def npartition(string, n=1, delimiter=' '):
@@ -20,7 +23,7 @@ def is_email(mailstr):
     Checks if a string matches the Email regex
     """
     EMAIL_REGEX = re.compile(r"[^@]+@[^@]+\.[^@]+")
-    return ((isinstance(mailstr, str) or isinstance(mailstr, unicode))
+    return ((isinstance(mailstr, str) or isinstance(mailstr, six.text_type))
             and bool(EMAIL_REGEX.match(mailstr)))
 
 
@@ -49,8 +52,7 @@ def abbreviated_name(name, append_digit=None, length=6):
 
     def strip_vowels(word):
         if len(word) > 2:
-            return word[0]+filter(lambda l:
-                                  l not in vowels, word[1:-1]) + word[-1]
+            return word[0]+[l for l in word[1:-1] if l not in vowels] + word[-1]
         else:
             return word
 

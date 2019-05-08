@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import pytest
 
 from toolspy import collection_tools
