@@ -50,6 +50,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/SuryaSankar/toolspy',
-    version='0.2.44',
+    version='0.2.45',
     zip_safe=False,
 )
