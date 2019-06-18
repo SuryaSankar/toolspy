@@ -589,3 +589,8 @@ def boolean_and_of_dicts(*dicts):
         for k, v in d.iteritems():
             result[k] = bool(result.get(k) and v)
     return result
+
+def batchiter(iterator, batch_size):
+    batch = []
+    for item in iterator:
+        pass
