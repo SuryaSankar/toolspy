@@ -28,24 +28,15 @@ def discount_percent(original_price, new_price):
     return percentage(original_price-new_price, original_price)
 
 
+def quantize(number, decimal_places=2):
+    if number is None:
+        return None
+    return Decimal(number).quantize(
+        Decimal(1) / 10**decimal_places
+    )
+
 def monetize(number):
-    """
-    Function used for rounding off numbers to a fixed number of
-    places.
-    >>> monetize(3.4389)
-    Decimal('3.44')
-    >>> monetize(3.4334)
-    Decimal('3.43')
-    """
-    if number is None:
-        return None
-    return Decimal(number).quantize(Decimal('.01'))
-
-
-def quantize(number):
-    if number is None:
-        return None
-    return Decimal(number).quantize(Decimal('.01'))
+    return quantize(number, 2)
 
 
 def financial_year(dt):
