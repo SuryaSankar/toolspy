@@ -134,6 +134,26 @@ def subdict(dictionary, keys):
     return (dict((k, dictionary[k]) for k in keys if k in dictionary)
             if len(keys) > 0 else dictionary)
 
+# def copy_partial_dict(dictionary, keys_to_retain=None, keys_to_remove=None):
+#     """
+#     >>>a={1:3, 4:5, 6:7}
+#     >>>subdict(a, [4,6])
+#     {4: 5, 6: 7}
+#     """
+#     result = {}
+#     if keys_to_retain:
+#         for k in keys_to_retain:
+#             if "." in k:
+#                 prefix, dot, suffix = k.partition(".")
+#                 if prefix in dictionary:
+#                     if isinstance(dictionary[prefix], dict):
+
+#             else:
+#                 if k in dictionary:
+#                     result[k] = dictionary[k]
+#     return (dict((k, dictionary[k]) for k in keys if k in dictionary)
+#             if len(keys) > 0 else dictionary)
+
 
 def remove_and_mark_duplicate_dicts(list_of_dicts, keys):
     result_dicts = []
@@ -365,6 +385,15 @@ def delete_dict_keys(d, keys):
     for k in keys:
         if k in d:
             del d[k]
+        else:
+            if '.' in k:
+                prefix, dot, suffix = k.partition(".")
+                if prefix in d:
+                    if isinstance(d[prefix], dict):
+                        delete_dict_keys(d[prefix], [suffix])
+                    elif isinstance(d[prefix], list):
+                        for dct in d[prefix]:
+                            delete_dict_keys(dct, [suffix])
 
 
 def copy_without_keys(d, keys):
@@ -553,7 +582,9 @@ def is_subdict_of(dict1, dict2, allow_sub_lists=False):
                 return False
     return True
 
-# def difference(dict1, dict2):
+    
+
+# def difference_dict(dict1, dict2):
 #     intersection_dict = {}
 #     for k, v in dict1.iteritems():
 #         if k in dict2:
