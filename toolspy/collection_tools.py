@@ -394,6 +394,7 @@ def delete_dict_keys(d, keys):
                     elif isinstance(d[prefix], list):
                         for dct in d[prefix]:
                             delete_dict_keys(dct, [suffix])
+    return d
 
 
 def copy_without_keys(d, keys):
