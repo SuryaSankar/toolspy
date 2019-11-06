@@ -460,12 +460,13 @@ def grouplist(olist, key, strip_single_object_lists=False):
      'Mumbai': [metta@nienow.com, mr.@howe.com]}
     """
     result = {}
-    for k, items in group(olist, key):
-        items_list = list(items)
-        if len(items_list) == 1 and strip_single_object_lists:
-            result[k] = items_list[0]
-        else:
-            result[k] = items_list
+    if len(olist) > 0:
+        for k, items in group(olist, key):
+            items_list = list(items)
+            if len(items_list) == 1 and strip_single_object_lists:
+                result[k] = items_list[0]
+            else:
+                result[k] = items_list
     return result
 
 
@@ -630,3 +631,24 @@ def batchiter(iterator, batch_size):
     batch = []
     for item in iterator:
         pass
+
+def apply_function_on_leaf_nodes(func, *dicts):
+    def adapt_func_to_dict_items(f):
+        pass
+    result = {}
+    for d in dicts:
+        for k, v in d.items():
+            if isinstance(v, dict):
+                if k not in result:
+                    result[k] = {'func': adapt_func_to_dict_items, 'values': [v]}
+                else:
+                    result[k].append(v)
+            elif isinstance(v, list):
+                pass
+            else:
+                if k not in result:
+                    result[k] = {'func': func, 'values': [v]}
+                else:
+                    result[k].append(v)               
+
+                
