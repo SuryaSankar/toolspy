@@ -24,6 +24,20 @@ def percentage_markup(original, percent):
     return monetize(original + (Decimal(percent) / 100) * original)
 
 
+def percentage_markdown(original, percent):
+    if original is None:
+        return None
+    return original / (1 + Decimal(percent) / 100)
+
+
+def null_safe_sum(*values):
+    result = 0
+    for val in values:
+        if val is not None:
+            result += val
+    return result
+
+
 def discount_percent(original_price, new_price):
     return percentage(original_price-new_price, original_price)
 
