@@ -61,3 +61,15 @@ def chdir(directory):
     os.chdir(directory)
     yield
     os.chdir(cwd)
+
+
+def filechunks(f, chunk_size):
+    chunk = []
+    for l in f:
+        chunk.append(l)
+        if len(chunk) == chunk_size:
+            yield chunk
+            chunk = []
+    if len(chunk) > 0:
+        yield chunk
+

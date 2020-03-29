@@ -649,6 +649,10 @@ def apply_function_on_leaf_nodes(func, *dicts):
                 if k not in result:
                     result[k] = {'func': func, 'values': [v]}
                 else:
-                    result[k].append(v)               
+                    result[k].append(v)
 
-                
+
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
