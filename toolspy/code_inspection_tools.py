@@ -20,7 +20,7 @@ def correct_subclass(klass, discriminator):
         return None
 
 
-def execution_timedelta(f):
+def with_execution_timedelta(f):
 
     @wraps(f)
     def wrapped_func(*args, **kwargs):
