@@ -1,3 +1,7 @@
+from functools import wraps
+from datetime import datetime
+
+
 def scd(cls):
     if len(cls.__subclasses__())==0:
         return {}
@@ -14,3 +18,14 @@ def correct_subclass(klass, discriminator):
             if c.__mapper_args__['polymorphic_identity'] == discriminator)
     except:
         return None
+
+
+def execution_timedelta(f):
+
+    @wraps(f)
+    def wrapped_func(*args, **kwargs):
+        start_time = datetime.utcnow()
+        result = f(*args, **kwargs)
+        elapsed_timedelta = datetime.utcnow() - start_time
+        return (result, elapsed_timedelta)
+    return wrapped_func

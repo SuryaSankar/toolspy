@@ -72,4 +72,3 @@ def filechunks(f, chunk_size):
             chunk = []
     if len(chunk) > 0:
         yield chunk
-
