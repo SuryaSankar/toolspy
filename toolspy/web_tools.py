@@ -15,6 +15,10 @@ def set_query_params(url, params):
     'http://example.com?foo=stuff&biz=baz'
 
     """
+    if url is None:
+        return None
+    if params is None:
+        return url
     scheme, netloc, path, query_string, fragment = urlsplit(url)
     query_params = parse_qs(query_string)
     for param_name, param_value in params.items():
@@ -45,3 +49,11 @@ def get_subdomain(host):
     host_parts = host.split('.')
     subs = host_parts[:-2]
     return '.'.join(subs)
+
+
+def get_query_params(url, one_value_per_param=True):
+    result = parse_qs(urlsplit(url).query)
+    if one_value_per_param:
+        result = {k: v[0] for k, v in result.items()}
+    return result
+

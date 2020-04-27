@@ -40,3 +40,14 @@ def write_xlsx_sheet(xlsx_file, rows=[], cols=[]):
             for col, cell in enumerate(row_cells):
                 worksheet.write(row_index, col, cell, text_wrap)
     workbook.close()
+
+
+def write_csv_file(csvfile, rows, cols):
+    if isinstance(csvfile, str):
+        with open(csvfile, 'w') as file:
+            write_csv_file(file, rows, cols)
+    else:
+        writer = csv.DictWriter(csvfile, fieldnames=cols)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(row)
