@@ -430,6 +430,23 @@ def sanitize(source_dict, whitelist, additional_params={}, keys_to_modify={},
     return merge(source_dict, additional_params)
 
 
+def transform_dict(
+        d, keys_to_retain=None, keys_to_rename=None,
+        skip_none_vals=True):
+    result = {}
+    for k, v in d.items():
+        if v is None and skip_none_vals:
+            continue
+        if keys_to_retain is None or k in keys_to_retain:
+            if keys_to_rename and k in keys_to_rename:
+                key = keys_to_rename.get(k)
+            else:
+                key = k
+            result[key] = v
+    return result
+
+
+
 def getattr_safe(obj, attr):
     attr = getattr(obj, attr)
     if ismethod(attr):
