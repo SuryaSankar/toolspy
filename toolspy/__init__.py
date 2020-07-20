@@ -135,7 +135,10 @@ def fetch_nested_key(obj, key_string):
     for key in keys:
         if curr_obj is None:
             return None
-        curr_obj = getattr(curr_obj, key)
+        if isinstance(curr_obj, dict):
+            curr_obj = curr_obj.get(key)
+        else:
+            curr_obj = getattr(curr_obj, key)
     return curr_obj
 
 
