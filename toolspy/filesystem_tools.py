@@ -10,6 +10,8 @@ from .collection_tools import merge
 import math
 from .math_tools import round_float
 import sys
+from PIL import Image as PImage
+from PIL import ExifTags
 
 
 def zipdir(dir_path, zip_file_path):
@@ -197,3 +199,14 @@ def filechunks(f, chunk_size):
             chunk = []
     if len(chunk) > 0:
         yield chunk
+
+def get_exif_dict(filepath):
+    img = PImage.open(filepath)
+    raw_exif = img.getexif()
+    exif = {
+        ExifTags.TAGS[k]: v
+        for k, v in raw_exif.items()
+        if k in ExifTags.TAGS
+    }
+    return exif
+

@@ -3,10 +3,13 @@ import re
 from random import choice
 import six
 from six.moves import range
+import string
 
 
-def random_string(length=8, candidates='ABCDEFGHIJKLMNPQRSTUVWXYZ123456789'):
-    return ''.join(choice(candidates) for i in list(range(length)))
+def random_string(length=8, candidates=None):
+    if candidates is None:
+        candidates = string.ascii_letters + string.digits
+    return ''.join(choice(candidates) for _ in list(range(length)))
 
 
 def npartition(string, n=1, delimiter=' '):
