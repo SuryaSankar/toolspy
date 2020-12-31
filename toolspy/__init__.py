@@ -35,6 +35,7 @@ from .filesystem_tools import *
 from .datetime_tools import *
 from .csv_xl_tools import *
 from .string_tools import *
+from .class_tools import *
 
 CUBIC_INCHES_IN_CUBIC_FEET = 12 * 12 * 12
 
